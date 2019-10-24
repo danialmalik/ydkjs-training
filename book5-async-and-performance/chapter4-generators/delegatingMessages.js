@@ -1,3 +1,6 @@
+console.log('====================================');
+console.log('Delegating messages');
+console.log('====================================');
 function *foo() {
 	console.log( "inside `*foo()`:", yield "B" );
 
