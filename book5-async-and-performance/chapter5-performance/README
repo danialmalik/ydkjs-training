@@ -1,0 +1,8 @@
+Chrome doesnt allow local web workers.
+To run the demo files, first run python server using command
+
+```
+python3 -m http.server [PORT]
+```
+ and open :
+ localhost:[PORT]
