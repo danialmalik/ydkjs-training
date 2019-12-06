@@ -169,3 +169,83 @@ console.log('does not work with methods that use `this` binding like `of` and `f
 	console.log(MyCoolArray.from( x ) instanceof MyCoolArray);		// true
 	console.log(MyCoolArray.of( [2, 3] ) instanceof MyCoolArray);	// true
 }
+
+
+console.log('====================================');
+console.log(':CopyWithin method');
+console.log('====================================');
+
+console.log([1,2,3,4,5].copyWithin( 3, 0 ));			// [1,2,3,1,2]
+
+console.log([1,2,3,4,5].copyWithin( 3, 0, 1 ));		// [1,2,3,1,5]
+
+console.log([1,2,3,4,5].copyWithin( 0, -2 ));		// [4,5,3,4,5]
+
+console.log([1,2,3,4,5].copyWithin( 0, -2, -1 ));	// [4,2,3,4,5]
+
+
+console.log('====================================');
+console.log('fill Method');
+console.log('====================================');
+
+var a = Array( 4 ).fill( undefined );
+console.log(a);
+// [undefined,undefined,undefined,undefined]
+
+// params: value, start, end
+var a = [ null, null, null, null ].fill( 42, 1, 3 );
+console.log(a);
+
+console.log('====================================');
+console.log('find method');
+console.log('====================================');
+
+
+console.log('====> using indexOf')
+var a = [1,2,3,4,5];
+
+console.log(a.indexOf( 3 ) != -1);				// true
+console.log(a.indexOf( 7 ) != -1);				// false
+
+console.log(a.indexOf( "2" ) != -1);			// false
+
+
+console.log('This does type strict comparison. ES5 workaround:')
+var a = [1,2,3,4,5];
+
+console.log(a.some( function matcher(v){
+	return v == "2";
+} ));								// true
+
+console.log(a.some( function matcher(v){
+	return v == 7;
+} ));								// false
+
+
+console.log('ES6: Find method');
+var a = [1,2,3,4,5];
+
+console.log(a.find( function matcher(v){
+	return v == "2";
+} ));								// 2
+
+console.log(a.find( function matcher(v){
+	return v == 7;					// undefined
+}));
+
+
+console.log('Custom matcher');
+var points = [
+	{ x: 10, y: 20 },
+	{ x: 20, y: 30 },
+	{ x: 30, y: 40 },
+	{ x: 40, y: 50 },
+	{ x: 50, y: 60 }
+];
+
+console.log(points.find( function matcher(point) {
+	return (
+		point.x % 3 == 0 &&
+		point.y % 4 == 0
+	);
+} ));								// { x: 30, y: 40 }
