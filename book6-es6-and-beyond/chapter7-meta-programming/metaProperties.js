@@ -122,3 +122,60 @@ console.log('====================================');
 	console.log(d instanceof Awesome);		// false
 	console.log(d instanceof Cool);			// true
 }
+
+
+console.log('====================================');
+console.log('Symbol.toPrimitive');
+console.log('====================================');
+
+{
+	var arr = [1,2,3,4,5];
+
+arr + 10;				// 1,2,3,4,510
+
+arr[Symbol.toPrimitive] = function(hint) {
+	if (hint == "default" || hint == "number") {
+		// sum all numbers
+		return this.reduce( function(acc,curr){
+			return acc + curr;
+		}, 0 );
+	}
+};
+
+console.log(arr + 10);				// 25
+}
+
+
+console.log('====================================');
+console.log('Symbol.isConcatSpreadable');
+console.log('====================================');
+// The @@isConcatSpreadable symbol can be defined as a boolean property (Symbol.isConcatSpreadable) on
+// any object (like an array or other iterable) to indicate if it should be spread out if passed to an
+// array concat(..).
+var a = [1,2,3],
+	b = [4,5,6];
+
+b[Symbol.isConcatSpreadable] = false;
+
+console.log([].concat( a, b ));		// [1,2,3,[4,5,6]]
+
+console.log('====================================');
+console.log('Symbol.unscopables');
+console.log('====================================');
+
+// The @@unscopables symbol can be defined as an object property (Symbol.unscopables)
+// on any object to indicate which properties can and cannot be exposed as lexical
+// variables in a with statement.
+
+var o = { a:1, b:2, c:3 },
+	a = 10, b = 20, c = 30;
+
+o[Symbol.unscopables] = {
+	a: false,
+	b: true,
+	c: false
+};
+
+with (o) {
+	console.log( a, b, c );		// 1 20 3
+}
