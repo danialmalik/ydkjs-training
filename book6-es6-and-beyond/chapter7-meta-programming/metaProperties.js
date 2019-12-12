@@ -5,15 +5,15 @@ console.log('====================================');
 class Parent {
 	constructor() {
 		if (new.target === Parent) {
-			console.log( "Parent instantiated" );
+			console.log("Parent instantiated");
 		}
 		else {
-			console.log( "A child instantiated" );
+			console.log("A child instantiated");
 		}
 	}
 }
 
-class Child extends Parent {}
+class Child extends Parent { }
 
 var a = new Parent();
 // Parent instantiated
@@ -31,16 +31,16 @@ console.log('Symbol.iterator');
 console.log('====================================');
 
 
-var arr = [4,5,6,7,8,9];
+var arr = [4, 5, 6, 7, 8, 9];
 
 for (var v of arr) {
-	console.log( v );
+	console.log(v);
 }
 // 4 5 6 7 8 9
 
 // define iterator that only produces values
 // from odd indexes
-arr[Symbol.iterator] = function*() {
+arr[Symbol.iterator] = function* () {
 	var idx = 1;
 	do {
 		yield this[idx];
@@ -48,7 +48,7 @@ arr[Symbol.iterator] = function*() {
 };
 
 for (var v of arr) {
-	console.log( v );
+	console.log(v);
 }
 // 5 7 9
 
@@ -59,7 +59,7 @@ console.log('====================================');
 
 
 // Pre-ES6
-function Foo() {}
+function Foo() { }
 
 var a = new Foo();
 
@@ -74,19 +74,19 @@ function Foo(greeting) {
 
 Foo.prototype[Symbol.toStringTag] = "Foo";
 
-Object.defineProperty( Foo, Symbol.hasInstance, {
-	value: function(inst) {
+Object.defineProperty(Foo, Symbol.hasInstance, {
+	value: function (inst) {
 		return inst.greeting == "hello";
 	}
-} );
+});
 
-var a = new Foo( "hello" ),
-	b = new Foo( "world" );
+var a = new Foo("hello"),
+	b = new Foo("world");
 
 b[Symbol.toStringTag] = "cool";
 
 a.toString();				// [object Foo]
-String( b );				// [object cool]
+String(b);				// [object cool]
 
 a instanceof Foo;			// true
 b instanceof Foo;			// false
@@ -106,7 +106,7 @@ console.log('====================================');
 		}
 	}
 
-	class Fun extends Cool {}
+	class Fun extends Cool { }
 
 	class Awesome extends Cool {
 		// force `@@species` to be parent constructor
@@ -129,20 +129,20 @@ console.log('Symbol.toPrimitive');
 console.log('====================================');
 
 {
-	var arr = [1,2,3,4,5];
+	var arr = [1, 2, 3, 4, 5];
 
-arr + 10;				// 1,2,3,4,510
+	arr + 10;				// 1,2,3,4,510
 
-arr[Symbol.toPrimitive] = function(hint) {
-	if (hint == "default" || hint == "number") {
-		// sum all numbers
-		return this.reduce( function(acc,curr){
-			return acc + curr;
-		}, 0 );
-	}
-};
+	arr[Symbol.toPrimitive] = function (hint) {
+		if (hint == "default" || hint == "number") {
+			// sum all numbers
+			return this.reduce(function (acc, curr) {
+				return acc + curr;
+			}, 0);
+		}
+	};
 
-console.log(arr + 10);				// 25
+	console.log(arr + 10);				// 25
 }
 
 
@@ -152,12 +152,12 @@ console.log('====================================');
 // The @@isConcatSpreadable symbol can be defined as a boolean property (Symbol.isConcatSpreadable) on
 // any object (like an array or other iterable) to indicate if it should be spread out if passed to an
 // array concat(..).
-var a = [1,2,3],
-	b = [4,5,6];
+var a = [1, 2, 3],
+	b = [4, 5, 6];
 
 b[Symbol.isConcatSpreadable] = false;
 
-console.log([].concat( a, b ));		// [1,2,3,[4,5,6]]
+console.log([].concat(a, b));		// [1,2,3,[4,5,6]]
 
 console.log('====================================');
 console.log('Symbol.unscopables');
@@ -167,7 +167,7 @@ console.log('====================================');
 // on any object to indicate which properties can and cannot be exposed as lexical
 // variables in a with statement.
 
-var o = { a:1, b:2, c:3 },
+var o = { a: 1, b: 2, c: 3 },
 	a = 10, b = 20, c = 30;
 
 o[Symbol.unscopables] = {
@@ -177,5 +177,5 @@ o[Symbol.unscopables] = {
 };
 
 with (o) {
-	console.log( a, b, c );		// 1 20 3
+	console.log(a, b, c);		// 1 20 3
 }
