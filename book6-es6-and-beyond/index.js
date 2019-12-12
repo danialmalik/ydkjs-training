@@ -1,181 +1,80 @@
 console.log('====================================');
-console.log('Meta properties');
-console.log('====================================');
-
-class Parent {
-	constructor() {
-		if (new.target === Parent) {
-			console.log( "Parent instantiated" );
-		}
-		else {
-			console.log( "A child instantiated" );
-		}
-	}
-}
-
-class Child extends Parent {}
-
-var a = new Parent();
-// Parent instantiated
-
-var b = new Child();
-// A child instantiated
-
-
-console.log('====================================');
-console.log('WELL KNOWN SYMBOLS');
-console.log('====================================');
-
-console.log('====================================');
-console.log('Symbol.iterator');
+console.log('Proxies');
 console.log('====================================');
 
 
-var arr = [4,5,6,7,8,9];
+var obj = { a: 1 },
+    handlers = {
+        get(target, key, context) {
+            // note: target === obj,
+            // context === pobj
+            console.log("accessing: ", key);
+            return Reflect.get(
+                target, key, context
+            );
+        }
+    },
+    pobj = new Proxy(obj, handlers);
 
-for (var v of arr) {
-	console.log( v );
-}
-// 4 5 6 7 8 9
+console.log(obj.a);
+// 1
 
-// define iterator that only produces values
-// from odd indexes
-arr[Symbol.iterator] = function*() {
-	var idx = 1;
-	do {
-		yield this[idx];
-	} while ((idx += 2) < this.length);
-};
+console.log(pobj.a);
+// accessing: a
+// 1
 
-for (var v of arr) {
-	console.log( v );
-}
-// 5 7 9
+/*
+LIST OF AVAILABLE TRAPS
 
+get(..): via [[Get]], a property is accessed on the proxy (Reflect.get(..), . property operator, or [ .. ] property operator)
 
-console.log('====================================');
-console.log('Symbol.toStringTag and Symbol.hasInstance');
-console.log('====================================');
+set(..): via [[Set]], a property value is set on the proxy (Reflect.set(..), the = assignment operator, or destructuring assignment if it targets an object property)
 
+deleteProperty(..): via [[Delete]], a property is deleted from the proxy (Reflect.deleteProperty(..) or delete)
 
-// Pre-ES6
-function Foo() {}
+apply(..) (if target is a function): via [[Call]], the proxy is invoked as a normal function/method (Reflect.apply(..), call(..), apply(..), or the (..) call operator)
 
-var a = new Foo();
+construct(..) (if target is a constructor function): via [[Construct]], the proxy is invoked as a constructor function (Reflect.construct(..) or new)
 
-a.toString();				// [object Object]
-a instanceof Foo;			// true
+getOwnPropertyDescriptor(..): via [[GetOwnProperty]], a property descriptor is retrieved from the proxy (Object.getOwnPropertyDescriptor(..) or Reflect.getOwnPropertyDescriptor(..))
 
-// Post ES6
+defineProperty(..): via [[DefineOwnProperty]], a property descriptor is set on the proxy (Object.defineProperty(..) or Reflect.defineProperty(..))
 
-function Foo(greeting) {
-	this.greeting = greeting;
-}
+getPrototypeOf(..): via [[GetPrototypeOf]], the [[Prototype]] of the proxy is retrieved (Object.getPrototypeOf(..), Reflect.getPrototypeOf(..), __proto__, Object#isPrototypeOf(..), or instanceof)
 
-Foo.prototype[Symbol.toStringTag] = "Foo";
+setPrototypeOf(..): via [[SetPrototypeOf]], the [[Prototype]] of the proxy is set (Object.setPrototypeOf(..), Reflect.setPrototypeOf(..), or __proto__)
 
-Object.defineProperty( Foo, Symbol.hasInstance, {
-	value: function(inst) {
-		return inst.greeting == "hello";
-	}
-} );
+preventExtensions(..): via [[PreventExtensions]], the proxy is made non-extensible (Object.preventExtensions(..) or Reflect.preventExtensions(..))
 
-var a = new Foo( "hello" ),
-	b = new Foo( "world" );
+isExtensible(..): via [[IsExtensible]], the extensibility of the proxy is probed (Object.isExtensible(..) or Reflect.isExtensible(..))
 
-b[Symbol.toStringTag] = "cool";
+ownKeys(..): via [[OwnPropertyKeys]], the set of owned properties and/or owned symbol properties of the proxy is retrieved (Object.keys(..), Object.getOwnPropertyNames(..), Object.getOwnSymbolProperties(..), Reflect.ownKeys(..), or JSON.stringify(..))
 
-a.toString();				// [object Foo]
-String( b );				// [object cool]
+enumerate(..): via [[Enumerate]], an iterator is requested for the proxy's enumerable owned and "inherited" properties (Reflect.enumerate(..) or for..in)
 
-a instanceof Foo;			// true
-b instanceof Foo;			// false
-
-
-console.log('====================================');
-console.log('Symbol.species');
-console.log('====================================');
+has(..): via [[HasProperty]], the proxy is probed to see if it has an owned or "inherited" property (Reflect.has(..), Object#hasOwnProperty(..), or "prop" in obj)
+*/
+console.log('some traps are called as a result of another call')
 {
-	class Cool {
-		// defer `@@species` to derived constructor
-		// default behavior
-		static get [Symbol.species]() { return this; }
+    var handlers = {
+        getOwnPropertyDescriptor(target, prop) {
+            console.log(
+                "getOwnPropertyDescriptor"
+            );
+            return Object.getOwnPropertyDescriptor(
+                target, prop
+            );
+        },
+        defineProperty(target, prop, desc) {
+            console.log("defineProperty");
+            return Object.defineProperty(
+                target, prop, desc
+            );
+        }
+    },
+        proxy = new Proxy({}, handlers);
 
-		again() {
-			return new this.constructor[Symbol.species]();
-		}
-	}
-
-	class Fun extends Cool {}
-
-	class Awesome extends Cool {
-		// force `@@species` to be parent constructor
-		static get [Symbol.species]() { return Cool; }
-	}
-
-	var a = new Fun(),
-		b = new Awesome(),
-		c = a.again(),
-		d = b.again();
-
-	console.log(c instanceof Fun);			// true
-	console.log(d instanceof Awesome);		// false
-	console.log(d instanceof Cool);			// true
-}
-
-
-console.log('====================================');
-console.log('Symbol.toPrimitive');
-console.log('====================================');
-
-{
-	var arr = [1,2,3,4,5];
-
-arr + 10;				// 1,2,3,4,510
-
-arr[Symbol.toPrimitive] = function(hint) {
-	if (hint == "default" || hint == "number") {
-		// sum all numbers
-		return this.reduce( function(acc,curr){
-			return acc + curr;
-		}, 0 );
-	}
-};
-
-console.log(arr + 10);				// 25
-}
-
-
-console.log('====================================');
-console.log('Symbol.isConcatSpreadable');
-console.log('====================================');
-// The @@isConcatSpreadable symbol can be defined as a boolean property (Symbol.isConcatSpreadable) on
-// any object (like an array or other iterable) to indicate if it should be spread out if passed to an
-// array concat(..).
-var a = [1,2,3],
-	b = [4,5,6];
-
-b[Symbol.isConcatSpreadable] = false;
-
-console.log([].concat( a, b ));		// [1,2,3,[4,5,6]]
-
-console.log('====================================');
-console.log('Symbol.unscopables');
-console.log('====================================');
-
-// The @@unscopables symbol can be defined as an object property (Symbol.unscopables)
-// on any object to indicate which properties can and cannot be exposed as lexical
-// variables in a with statement.
-
-var o = { a:1, b:2, c:3 },
-	a = 10, b = 20, c = 30;
-
-o[Symbol.unscopables] = {
-	a: false,
-	b: true,
-	c: false
-};
-
-with (o) {
-	console.log( a, b, c );		// 1 20 3
+    proxy.a = 2; // these two traps are called as a result of set call.
+    // getOwnPropertyDescriptor
+    // defineProperty
 }
